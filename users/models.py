@@ -10,12 +10,7 @@ from .managers import CustomUserManager
 
 def validate_phone(value):
     value = str(value)
-    if not value.isnumeric:
-        raise ValidationError(
-            _('%(value)s is not a number'),
-            params={'value': value},
-        )
-    if len(value)!=10 or value[0]==0:
+    if not value.isnumeric() or int(value)//1000000000 == 0:
         raise ValidationError(
             _('%(value)s is not a valid phone number'),
             params={'value': value},
@@ -23,15 +18,16 @@ def validate_phone(value):
 
 
 class User(AbstractUser):
-    phone = models.IntegerField(_("phone number"), unique=True, validators=[validate_phone])
+    phone = models.CharField(_("phone number"), max_length=10, null=False,
+                             unique=True, validators=[validate_phone])
     is_superuser = models.BooleanField(
-        _('superuser status'),
-        default=False,
-        help_text=_(
-            'Designates that this user has all permissions without '
-            'explicitly assigning them.'
-        ),
-    )
+                            _('superuser status'),
+                            default=False,
+                            help_text=_(
+                                'Designates that this user has all permissions without '
+                                'explicitly assigning them.'
+                            ),
+                        )
     username = None
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = []
@@ -49,7 +45,7 @@ def upload_to(instance, filename):
 
 
 class Profile(models.Model):
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="profile")
     profile_picture = models.ImageField(_("Avatar"), upload_to=upload_to, blank=True)
     whatsapp_name = models.CharField(max_length=20, blank=True, default="phone")
     whatsapp_status = models.CharField(max_length=100, blank=True, default="Hi there! I am using whatsapp")

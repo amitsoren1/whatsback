@@ -17,9 +17,9 @@ from chats.socketio import sio
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chatback.settings')
 
 application = get_wsgi_application()
-application = socketio.WSGIApp(sio, application)
+# application = socketio.WSGIApp(sio, application)
 
-import eventlet
-import eventlet.wsgi
+# import eventlet
+# import eventlet.wsgi
 
-eventlet.wsgi.server(eventlet.listen(('', 8000)), application)
+# eventlet.wsgi.server(eventlet.listen(('', 8000)), application)
