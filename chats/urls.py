@@ -1,6 +1,5 @@
-from django.contrib import admin
-from django.urls import path, include
-from .views import (MessageListCreateAPIView, MessageRetrieveUpdateDestroyAPIView,
+from django.urls import path
+from .views import (Aview, MessageListCreateAPIView, MessageRetrieveUpdateDestroyAPIView,
                     ChatListAPIView, ChatwithRetrieveAPIView, ChatRetrieveUpdateDestroyAPIView
                 )
 
@@ -10,6 +9,7 @@ urlpatterns = [
     path("chat", ChatListAPIView.as_view(), name="chats of authenticated user"),
     path('chat-with/<int:pk>', ChatwithRetrieveAPIView.as_view(), name="get a chat of user with user pk"),
     path('chat/<int:pk>', ChatRetrieveUpdateDestroyAPIView.as_view(), name="get a chat with id pk"),
+    path('cha', Aview.as_view(), name="getrf"),
 ]
 
 

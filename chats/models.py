@@ -7,8 +7,8 @@ from django.utils.translation import gettext as _
 class Message(models.Model):
     uid = models.UUIDField()
     content = models.TextField(blank=False)
-    sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="out_messages")
-    sent_for = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="in_messages")
+    sender = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name="out_messages")
+    sent_for = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name="in_messages")
     time = models.TimeField(auto_now_add=True)
     date = models.DateField(auto_now_add=True)
     STATUS = (
@@ -38,7 +38,7 @@ class Message(models.Model):
 class Chat(models.Model):
     uid = models.UUIDField()
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="chats")
-    chat_with = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
+    chat_with = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name="chats_with")
     unread = models.PositiveIntegerField(default=0)
     updated_on = models.DateTimeField(auto_now=True)
     messages = models.ManyToManyField(Message)

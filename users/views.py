@@ -6,16 +6,18 @@ from django.contrib.auth import login as django_login, logout as django_logout
 from rest_framework.authtoken.models import Token
 from django.conf import settings
 
-from rest_framework.generics import CreateAPIView, GenericAPIView, RetrieveUpdateAPIView, ListCreateAPIView
+from rest_framework.generics import CreateAPIView, GenericAPIView, ListAPIView, RetrieveUpdateAPIView, ListCreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import User
-from .serializers import LoginSerializer, TokenSerializer, UserSerializer, ProfileSerializer, ContactSerializer
+from .models import Profile, User
+from .serializers import ContactCreateSerializer, ContactListSerializer, LoginSerializer, TokenSerializer, UserSerializer, ProfileSerializer
 import time
+
+from users import serializers
 
 sensitive_post_parameters_m = method_decorator(
     sensitive_post_parameters(
@@ -39,25 +41,37 @@ class ProfileRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         return self.request.user.profile
 
 
-class ContactListCreateAPIView(ListCreateAPIView):
-    serializer_class = ContactSerializer
+class ContactCreateAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = [TokenAuthentication, SessionAuthentication]
+    serializer_class = ContactCreateSerializer
 
-    def get_queryset(self):
-        return self.request.user.profile.contacts.all()
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data,
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
                                          context={
                                                 'profile': request.user.profile
                                             }
                                         )
         if serializer.is_valid(raise_exception=True):
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            try:
+                serializer.save()
+                profile1 = Profile.objects.get(id=serializer.data.get("profile").get("id"))
+                profile = ProfileSerializer(profile1, context={'request': request})
+                return Response({**serializer.data,
+                                 "profile": profile.data},
+                                 status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ContactListAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    serializer_class = ContactListSerializer
+
+    def get_queryset(self):
+        return self.request.user.profile.contacts
 
 
 class LoginView(GenericAPIView):
@@ -106,7 +120,8 @@ class LogoutView(APIView):
     assigned to the current User object.
     Accepts/Returns nothing.
     """
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
 
     def get(self, request, *args, **kwargs):
         if getattr(settings, 'ACCOUNT_LOGOUT_ON_GET', False):

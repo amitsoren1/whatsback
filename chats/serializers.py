@@ -12,7 +12,7 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
         ordering = ['date', 'time']
         read_only_fields = ["status", "sender"]
-        depth = 1
+        # depth = 1
 
     def create(self, validated_data):
         # print(self.context.get("request"))
@@ -45,12 +45,12 @@ class MessageUpdateSerializer(serializers.ModelSerializer):
 
 class ChatSerializer(serializers.ModelSerializer):
     messages = MessageCreateSerializer(many=True)
-    
+
     class Meta:
         model = Chat
-        fields = "__all__"
+        # fields = "__all__"
         ordering = ['id']
-        # exclude = ('updated_on', )
+        exclude = ('owner', )
         depth = 1
 
     # def to_representation(self, instance):

@@ -45,7 +45,7 @@ def upload_to(instance, filename):
 
 
 class Profile(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="profile")
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     profile_picture = models.ImageField(_("Avatar"), upload_to=upload_to, blank=True)
     whatsapp_name = models.CharField(max_length=20, blank=True, default="phone")
     whatsapp_status = models.CharField(max_length=100, blank=True, default="Hi there! I am using whatsapp")
@@ -56,10 +56,12 @@ class Profile(models.Model):
 
 
 class Contact(models.Model):
-    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="contacts", unique=False)
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="contacts")
     name = models.CharField(max_length=255)
-    phone = models.IntegerField(_("phone number"), unique=True, validators=[validate_phone])
-    profile = models.OneToOneField(Profile, on_delete=models.DO_NOTHING)
+    profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
+
+    class Meta:
+        unique_together = ('owner', 'profile',)
 
     def __str__(self):
         return f"{self.name}"

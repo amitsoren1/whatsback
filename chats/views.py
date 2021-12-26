@@ -1,3 +1,4 @@
+from django.http.response import JsonResponse
 from rest_framework.generics import (
                                      ListCreateAPIView, RetrieveUpdateDestroyAPIView,
                                      ListAPIView, RetrieveAPIView
@@ -8,6 +9,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q
+from rest_framework.views import APIView
 from .models import Message, Chat
 from .serializers import MessageCreateSerializer, A, MessageUpdateSerializer, ChatSerializer
 import time
@@ -57,8 +59,6 @@ class ChatListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # time.sleep(10)
-        # messages = Message.objects.filter(sent_for=self.request.user.profile)
         return self.request.user.profile.chats.all().order_by("-updated_on")
 
 # from django.shortcuts import render
@@ -86,3 +86,12 @@ class ChatwithRetrieveAPIView(RetrieveAPIView):
 class ChatRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = ChatSerializer
     queryset = Chat.objects.all()
+
+
+class Aview(APIView):
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        with open("asd.txt", "r") as f:
+            q=f.readlines()
+        return JsonResponse({"res": q})

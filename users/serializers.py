@@ -12,7 +12,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(validated_data.pop("phone"), validated_data.pop("password"), **validated_data)
-        Profile.objects.create(owner=user)
         return user
 
 
@@ -22,17 +21,37 @@ class ProfileSerializer(serializers.ModelSerializer):
         exclude = ("owner",)
 
 
-class ContactSerializer(serializers.ModelSerializer):
+class ContactCreateSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    phone = serializers.CharField(max_length=10)
+    profile = ProfileSerializer(read_only=True)
+
+    class Meta:
+        read_only_fields = ('profile',)
+
+    def validate_phone(self, phone):
+        value = str(phone)
+        if not value.isnumeric() or int(value)//1000000000 == 0:
+            raise serializers.ValidationError(
+                _(f"{value} is not a valid phone number"))
+        contact_user = User.objects.filter(phone=phone).first()
+        if contact_user is None:
+            raise serializers.ValidationError("No user exists with this phone")
+        return phone
+
+    def create(self, validated_data):
+        print(validated_data)
+        contact_user = User.objects.filter(phone=validated_data.get("phone")).first()
+        phone = validated_data.pop("phone")
+        Contact.objects.create(owner=self.context.get("profile"), profile=contact_user.profile, **validated_data)
+        return {**validated_data, "phone": phone, "profile": contact_user.profile}
+
+
+class ContactListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         exclude = ("owner",)
         depth = 1
-    
-    def create(self, validated_data):
-        # print(self.context.get("request"))
-        if User.objects.filter(email=validated_data.get("email")).first() is None:
-            raise serializers.ValidationError("No user exists with this email")
-        return Contact.objects.create(owner=self.context.get("profile"), **validated_data)
 
 
 class LoginSerializer(serializers.Serializer):
