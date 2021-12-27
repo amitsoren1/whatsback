@@ -9,8 +9,8 @@ class Message(models.Model):
     content = models.TextField(blank=False)
     sender = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name="out_messages")
     sent_for = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name="in_messages")
-    time = models.TimeField(auto_now_add=True)
-    date = models.DateField(auto_now_add=True)
+    time = models.TimeField()
+    date = models.DateField()
     STATUS = (
       ("sent",  _('Sent')),
       ("delivered", _('Delivered')),
@@ -18,10 +18,10 @@ class Message(models.Model):
     )
     status = models.CharField(choices=STATUS, default=STATUS[0][0], max_length=10)
 
-    def clean(self):
-        if hasattr(self, "sender") and hasattr(self, "sender"):
-            if self.sender == self.sent_for:
-                raise ValidationError("Sender and Receiver can't be same")
+    # def clean(self):
+    #     if hasattr(self, "sender") and hasattr(self, "sent_for"):
+    #         if self.sender == self.sent_for:
+    #             raise ValidationError("Sender and Receiver can't be same")
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -36,12 +36,11 @@ class Message(models.Model):
 
 
 class Chat(models.Model):
-    uid = models.UUIDField()
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="chats")
     chat_with = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name="chats_with")
     unread = models.PositiveIntegerField(default=0)
     updated_on = models.DateTimeField(auto_now=True)
-    messages = models.ManyToManyField(Message)
+    messages = models.ManyToManyField(Message, related_name="chat", blank=True)
 
     class Meta:
         unique_together = ('owner', 'chat_with',)

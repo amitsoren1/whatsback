@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from users.models import User
 from .models import Message, Chat
 from datetime import datetime, timezone, timedelta
 # from dateutil import relativedelta
@@ -41,10 +43,30 @@ class MessageUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = "__all__"
-        read_only_fields = ["time", "content", "sender", "sent_for"]
+        read_only_fields = ["time", "content", "sender", "sent_for", "date", "uid"]
 
-class ChatSerializer(serializers.ModelSerializer):
+
+class ChatCreateSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(source="chat_with.owner.phone", read_only=True)
+
+    # def get_chat_with(self, obj):
+    #     return obj.chat_with
+
+    class Meta:
+        model = Chat
+        ordering = ['id']
+        exclude = ('owner',)
+        # depth = 1
+        read_only_fields = ["unread", "messages"]
+
+    def create(self, validated_data):
+        # print(self.context.get("request"))
+        return Chat.objects.create(owner=self.context.get("profile"), **validated_data)
+
+
+class ChatGetSerializer(serializers.ModelSerializer):
     messages = MessageCreateSerializer(many=True)
+    phone = serializers.CharField(source="chat_with.owner.phone", read_only=True)
 
     class Meta:
         model = Chat
@@ -52,7 +74,6 @@ class ChatSerializer(serializers.ModelSerializer):
         ordering = ['id']
         exclude = ('owner', )
         depth = 1
-
     # def to_representation(self, instance):
         # print(instance.messages.all())
         # representation = super().to_representation(instance)
