@@ -16,6 +16,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(source="owner.phone", read_only=True)
+
     class Meta:
         model = Profile
         exclude = ("owner",)
