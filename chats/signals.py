@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_delete
 # from channels.db import database_sync_to_async
 from django.dispatch import receiver
 # from channels.layers import get_channel_layer
@@ -31,6 +31,12 @@ def create_chat(sender, instance, created, **kwargs):
         #     f"chat_{str(instance.sent_for.id)}",
         #     data
         # )
+
+
+@receiver(pre_delete, sender=Chat)
+def detach_messages(sender, instance, **kwargs):
+    instance.messages.clear()
+
 
 @receiver(post_save, sender=Message)
 def add_to_chat(sender, instance, created, **kwargs):

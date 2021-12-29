@@ -28,10 +28,10 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         tz = pytz.timezone(conf_settings.TIME_ZONE)
         today = datetime.now(tz)
         yesterday = (today-timedelta(days=1))
-        if today.date().strftime("%Y-%m-%d") == representation["date"]:
-            representation["date"] = "TODAY"
-        elif yesterday.date().strftime("%Y-%m-%d") == representation["date"]:
-            representation["date"] = "YESTERDAY"
+        # if today.date().strftime("%Y-%m-%d") == representation["date"]:
+        #     representation["date"] = "TODAY"
+        # elif yesterday.date().strftime("%Y-%m-%d") == representation["date"]:
+        #     representation["date"] = "YESTERDAY"
         return representation
 
     def validate(self, data):

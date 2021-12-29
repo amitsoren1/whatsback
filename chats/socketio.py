@@ -2,7 +2,7 @@ import socketio
 import time
 import threading
 
-from chats.models import Message  
+from chats.models import Chat, Message  
 from users.models import Profile
 
 sio = socketio.Server(async_mode='eventlet', cors_allowed_origins='*')
@@ -18,6 +18,13 @@ def new_message(message):
         sender=Profile.objects.get(id=message["newMsgObject"]["sender"]["id"]),
         sent_for=Profile.objects.get(id=message["newMsgObject"]["sent_for"]),
         time=message["newMsgObject"]["time"], date=message["newMsgObject"]["date"])
+
+def update_read_messages(reader_id, chat_with_id):
+    chat = Chat.objects.get(owner=chat_with_id, chat_with=reader_id)
+    for message in chat.messages.filter(sender__id=chat_with_id):
+        message.status = Message.STATUS[2][0]
+        message.save()
+
 
 @sio.event
 def connect(sid, environ, auth):
@@ -57,3 +64,17 @@ def send_message(sid, message):
     # print()
     sio.emit("incoming_message", message["newMsgObject"], to=str(message["newMsgObject"]["sent_for"]))
     print("triggered")
+
+
+@sio.event
+def chat_read(sid, message):
+    print(message)
+    expcted = {
+        "chat_with": 1,
+        "reader": 3
+    }
+    T1 = threading.Thread(target=update_read_messages, args=(message["reader"], message["chat_with"]))
+    T1.start()
+    # print()
+    sio.emit("chat_read", message, to=str(message["chat_with"]))
+    print("triggered2")
