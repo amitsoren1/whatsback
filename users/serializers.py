@@ -17,6 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(source="owner.phone", read_only=True)
+    profile_picture = serializers.ImageField(max_length=None, allow_empty_file=True, allow_null=True, required=False)
 
     class Meta:
         model = Profile

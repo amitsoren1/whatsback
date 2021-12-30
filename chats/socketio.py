@@ -24,6 +24,9 @@ def update_read_messages(reader_id, chat_with_id):
     for message in chat.messages.filter(sender__id=chat_with_id):
         message.status = Message.STATUS[2][0]
         message.save()
+    mychat = Chat.objects.get(owner=reader_id, chat_with=chat_with_id)
+    mychat.unread=0
+    mychat.save()
 
 
 @sio.event
