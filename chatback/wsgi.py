@@ -18,8 +18,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chatback.settings')
 
 application = get_wsgi_application()
 application = socketio.WSGIApp(sio, application, static_files={
-    '/static': './static',
-    '/media': './media',
+    '/static': '/app/chatback/static',
+    '/media': '/app/chatback/media',
 })
 
 # import eventlet
