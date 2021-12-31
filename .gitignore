@@ -1,3 +1,7 @@
 .vscode
 *.pyc
 *.sqlite3
+*.jpg
+*.html
+/chatback/static
+/chatback/media
