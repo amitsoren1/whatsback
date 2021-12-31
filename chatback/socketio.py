@@ -1,6 +1,6 @@
 import socketio
 
-sio = socketio.Server(async_mode='eventlet', cors_allowed_origins='*')
+sio = socketio.Server(async_mode='eventlet', cors_allowed_origins=[])
 
 @sio.event
 def connect(sid, environ, auth):
