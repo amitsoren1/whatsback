@@ -22,3 +22,16 @@ def send_message(sid, message):
 @sio.event
 def chat_read(sid, message):
     sio.emit("chat_read", message, to=str(message["chat_with"]))
+
+@sio.event
+def call_user(sid, message: dict):
+    sio.emit("incoming_call", {
+                            "signal": message["signal_data"],
+                            "from": message["from"]
+                            },
+            to=str(message["user_to_call"])
+            )
+
+@sio.event
+def answer_call(sid, message: dict):
+    sio.emit("call_acepted", message["signal"], to=str(message["to"]))
