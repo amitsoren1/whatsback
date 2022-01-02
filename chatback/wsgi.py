@@ -17,10 +17,11 @@ from .socketio import sio
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chatback.settings')
 
 application = get_wsgi_application()
-application = socketio.WSGIApp(sio, application, static_files={
-    '/static': '/app/chatback/static',
-    '/media': '/app/chatback/media',
-})
+# application = socketio.WSGIApp(sio, application, static_files={
+#     '/static': 'E:\\whatsapp-back\\chatback\\static',
+#     '/media': 'E:\\whatsapp-back\\chatback\\media',
+# })
+application = socketio.WSGIApp(sio, application)
 
 # import eventlet
 # import eventlet.wsgi
