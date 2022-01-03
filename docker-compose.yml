@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  frontend:
+    image: nginx:alpine
+    volumes:
+    - "shared_volume:/filess"
+    - "shared_volume2:/whatsbackend"
+    - "./conf:/etc/nginx/conf.d"
+    ports:
+      - 80:80
+      - 6565:6565
+
+  backend:
+    build: ./whatsback
+    command: >
+      bash -c "python manage.py migrate && python manage.py collectstatic --no-input
+      && gunicorn -b 0.0.0.0:8000 -k eventlet -w 1 chatback.wsgi:application"
+    ports:
+      - 8000:8000
+    volumes:
+      - "shared_volume2:/whatsapp/backend"
+
+  reactbuild:
+    build: .
+    volumes:
+      - "shared_volume:/reactdataa"
+
+volumes:
+  shared_volume:
+  shared_volume2:
