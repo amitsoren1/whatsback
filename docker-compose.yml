@@ -4,12 +4,13 @@ services:
   frontend:
     image: nginx:alpine
     volumes:
-    - "shared_volume:/filess"
-    - "shared_volume2:/whatsbackend"
-    - "./conf:/etc/nginx/conf.d"
+      - "frontend_volume:/whatsfrontend"
+      - "backend_volume:/whatsbackend"
+      - "./conf:/etc/nginx/conf.d"
+      - "./certs:/sslcert"
     ports:
       - 80:80
-      - 6565:6565
+      - 443:443
 
   backend:
     build: ./whatsback
@@ -19,13 +20,16 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - "shared_volume2:/whatsapp/backend"
+      - "backend_volume:/whatsapp/backend"
 
   reactbuild:
-    build: .
+    build:
+      context: .
+      args:
+        REACT_APP_BACKEND_URL:
     volumes:
-      - "shared_volume:/reactdataa"
+      - "frontend_volume:/reactfolder"
 
 volumes:
-  shared_volume:
-  shared_volume2:
+  backend_volume:
+  frontend_volume:
