@@ -1,5 +1,10 @@
+import json
 from datetime import date
-from django.http.response import JsonResponse
+import threading
+from django.http.response import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.http import QueryDict
 from rest_framework.generics import (
                                      CreateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView,
                                      ListAPIView, RetrieveAPIView
@@ -11,6 +16,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q
 from rest_framework.views import APIView
+
+from users.models import Profile
 from .models import Message, Chat
 from .serializers import (MessageCreateSerializer, A, MessageUpdateSerializer,
                             ChatCreateSerializer, ChatGetSerializer)
@@ -18,6 +25,41 @@ import time
 # from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.http import Http404
+
+def new_message(message):
+    Message.objects.create(uid=message["newMsgObject"]["uid"], content=message["newMsgObject"]["content"],
+        sender=Profile.objects.get(id=message["newMsgObject"]["sender"]["id"]),
+        sent_for=Profile.objects.get(id=message["newMsgObject"]["sent_for"]),
+        time=message["newMsgObject"]["time"], date=message["newMsgObject"]["date"])
+
+def update_read_messages(reader_id, chat_with_id):
+    chat = Chat.objects.get(owner=chat_with_id, chat_with=reader_id)
+    for message in chat.messages.filter(sender__id=chat_with_id):
+        message.status = Message.STATUS[2][0]
+        message.save()
+    mychat = Chat.objects.get(owner=reader_id, chat_with=chat_with_id)
+    mychat.unread=0
+    mychat.save()
+
+@require_http_methods(["PATCH"])
+@csrf_exempt
+def new_message_view(request):
+    data_str = request.body.decode()
+    data = json.loads(data_str)
+
+    T = threading.Thread(target=new_message, args=(data,))
+    T.start()
+    return JsonResponse({"result": "worked"})
+
+@require_http_methods(["PATCH"])
+@csrf_exempt
+def update_read_view(request):
+    data_str = request.body.decode()
+    data = json.loads(data_str)
+
+    T = threading.Thread(target=update_read_messages, args=(data["reader"], data["chat_with"]))
+    T.start()
+    return JsonResponse({"result": "worked"})
 
 class MessageListCreateAPIView(ListCreateAPIView):
     queryset = Message.objects.all()

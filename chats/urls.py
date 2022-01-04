@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (Aview, ChatCreateAPIView, ChatListAPIView, MessageListCreateAPIView, MessageRetrieveUpdateDestroyAPIView,
-                    ChatwithRetrieveAPIView, ChatRetrieveUpdateDestroyAPIView
+                    ChatwithRetrieveAPIView, ChatRetrieveUpdateDestroyAPIView, new_message_view, update_read_view
                 )
 
 urlpatterns = [
@@ -11,6 +11,8 @@ urlpatterns = [
     path('chat-with/<int:pk>', ChatwithRetrieveAPIView.as_view(), name="get a chat of user with user pk"),
     path('chat/<int:pk>', ChatRetrieveUpdateDestroyAPIView.as_view(), name="get a chat with id pk"),
     path('cha', Aview.as_view(), name="getrf"),
+    path('new-message', new_message_view, name="handle new message"),
+    path('chat-read', update_read_view, name="handle chat read"),
 ]
 
 
