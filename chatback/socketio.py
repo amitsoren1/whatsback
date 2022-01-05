@@ -27,7 +27,8 @@ def chat_read(sid, message):
 def call_user(sid, message: dict):
     sio.emit("incoming_call", {
                             "signal": message["signal_data"],
-                            "from": message["from"]
+                            "from": message["from"],
+                            "call_type": message["call_type"]
                             },
             to=str(message["user_to_call"])
             )
