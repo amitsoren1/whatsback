@@ -41,7 +41,7 @@ def update_read_messages(reader_id, chat_with_id):
     mychat.unread=0
     mychat.save()
 
-@require_http_methods(["PATCH"])
+@require_http_methods(["POST"])
 @csrf_exempt
 def new_message_view(request):
     data_str = request.body.decode()
