@@ -86,6 +86,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'chatback.wsgi.application'
 ASGI_APPLICATION = "chatback.routing.application"
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer"
