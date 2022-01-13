@@ -14,8 +14,8 @@ def connect(sid, environ, auth):
 @sio.event
 def disconnect(sid):
     a=datetime.now(pytz.timezone('Asia/Kolkata'))
-    last_seen = a.time().strftime("%I:%M %p") + " " + a.date().strftime("%d %b, %Y")
-    users[sid] = last_seen
+    last_seen = "last seen " + a.time().strftime("%I:%M %p") + " " + a.date().strftime("%d %b, %Y")
+    users[sid_mapper[sid]] = last_seen
     sio.emit('went_offline', {'user_id': sid_mapper[sid], 'last_seen': last_seen})
     print(f"Client disconnected {sid}")
 
@@ -60,3 +60,15 @@ def call_user(sid, message: dict):
 @sio.event
 def answer_call(sid, message: dict):
     sio.emit("call_acepted", message["signal"], to=str(message["to"]))
+
+@sio.event
+def call_ended(sid, message: dict):
+    sio.emit("call_ended", {}, to=str(message["to"]))
+
+@sio.event
+def call_rejected(sid, message: dict):
+    sio.emit("call_rejected", {}, to=str(message["to"]))
+
+@sio.event
+def call_cancelled(sid, message: dict):
+    sio.emit("call_cancelled", {}, to=str(message["to"]))
