@@ -4,7 +4,6 @@ services:
   frontend:
     image: nginx:alpine
     volumes:
-      - "frontend_volume:/whatsfrontend"
       - "backend_volume:/whatsbackend"
       - "./conf:/etc/nginx/conf.d"
       - "./certs:/sslcert"
@@ -13,7 +12,7 @@ services:
       - 443:443
 
   backend:
-    build: ./whatsback
+    build: .
     command: >
       bash -c "python manage.py migrate && python manage.py collectstatic --no-input
       && gunicorn -b 0.0.0.0:8000 -k eventlet -w 1 chatback.wsgi:application"
@@ -22,14 +21,5 @@ services:
     volumes:
       - "backend_volume:/whatsapp/backend"
 
-  reactbuild:
-    build:
-      context: .
-      args:
-        REACT_APP_BACKEND_URL:
-    volumes:
-      - "frontend_volume:/reactfolder"
-
 volumes:
   backend_volume:
-  frontend_volume:
