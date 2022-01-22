@@ -60,9 +60,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ORIGIN_WHITELIST = [
-#     'http://127.0.0.1:3000',
-# ]
+# CORS_ALLOWED_ORIGINS = []
 
 ROOT_URLCONF = 'chatback.urls'
 AUTH_USER_MODEL = 'users.User'
@@ -84,7 +82,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'chatback.wsgi.application'
-ASGI_APPLICATION = "chatback.routing.application"
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
