@@ -28,6 +28,7 @@ SECRET_KEY = 'django-insecure-4h*q7ha-d3(aax&*h@mo@py3vtjs4kyhyg$^&z8%rm^9lb(440
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ["xxxxx.yyy"]
 
 
 # Application definition
@@ -60,7 +61,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = []
+# CORS_ALLOWED_ORIGINS = [https://xxxx.yyy]
 
 ROOT_URLCONF = 'chatback.urls'
 AUTH_USER_MODEL = 'users.User'
